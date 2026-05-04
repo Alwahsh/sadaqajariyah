@@ -156,15 +156,34 @@ def profile_edit_view(request):
         form = ProfileEditForm(request.POST, instance=profile)
         formset = Formset(request.POST, instance=profile)
         if form.is_valid() and formset.is_valid():
+            # Capture the persisted bio + verified state BEFORE saving so we
+            # can detect a real bio change. Verified status is invalidated by
+            # bio edits — the operator vouches for what's there at verify time.
+            persisted = Profile.objects.only("bio", "is_verified").get(pk=profile.pk)
+            bio_changed = form.cleaned_data.get("bio", "") != persisted.bio
+            was_verified = persisted.is_verified
+
             form.save()
             formset.save()
             profile.refresh_from_db()
+
+            warned = False
+            if bio_changed and was_verified:
+                profile.is_verified = False
+                profile.save(update_fields=["is_verified"])
+                messages.warning(
+                    request,
+                    "Your verified badge has been removed because you changed your bio. "
+                    "The operator will re-verify your account when they review the new bio.",
+                )
+                warned = True
             if profile.scheduling_url and not is_known_scheduling_host(profile.scheduling_url):
                 messages.warning(
                     request,
                     "We don't recognize this scheduling tool — make sure the link works for visitors.",
                 )
-            else:
+                warned = True
+            if not warned:
                 messages.success(request, "Profile saved.")
             return redirect("/settings/")
     else:

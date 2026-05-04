@@ -30,6 +30,12 @@
       {% for err in form.last_name.errors %}<span class="text-[12.5px] text-red-700 block mt-1">{{ err }}</span>{% endfor %}
     </label>
 
+    {% if profile.is_verified %}
+      <aside class="bio-verified-warning" data-test="bio-edit-warning" role="note">
+        <p><strong>Heads up:</strong> Your account is currently <span class="badge-verified-inline">✓ Verified</span>. Editing your bio will remove the badge until the operator reviews and re-verifies your account. Other fields (name, scheduling link, services) do not affect verification.</p>
+      </aside>
+    {% endif %}
+
     <label class="block">
       <span class="block text-[13.5px] font-medium">Bio <span aria-hidden="true">*</span></span>
       <textarea name="bio" rows="4" required minlength="20" maxlength="1000"
