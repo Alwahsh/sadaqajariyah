@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% load directory_extras static %}
+{% block title %}{{ profile.display_name }} · Sadaqa Jariyah{% endblock %}
+{% block content %}
+<section class="profile max-w-[980px] mx-auto px-9 py-8" data-test="profile-page" data-username="{{ profile_user.username }}">
+  <a href="/directory/" class="crumb text-[13px] text-inkSoft hover:text-ink">← Back to directory</a>
+
+  {% if is_owner and not has_scheduling %}
+    <aside class="banner-warning bg-[#FBF1D6] border border-[#E8D58A] rounded-[10px] mt-6 p-5" data-test="owner-no-scheduling-banner" role="alert">
+      <h2 class="text-[#3F3208] font-semibold">Add a scheduling link to appear in the directory.</h2>
+      <p class="text-[#6B5418] text-[14px] mt-1">Visit <a href="/settings/" class="underline">/settings/</a> to add a scheduling link.</p>
+    </aside>
+  {% endif %}
+
+  <div class="profile-grid mt-6 grid {% if has_scheduling %}grid-cols-1 md:grid-cols-[1fr_320px]{% else %}grid-cols-1{% endif %} gap-10 items-start">
+    <div class="col-left">
+      <div class="header flex items-center gap-4">
+        <div class="avatar w-[68px] h-[68px] bg-sage-soft text-sage-deep rounded-[12px] flex items-center justify-center text-[20px] font-semibold" aria-hidden="true">{{ profile.display_name|initials }}</div>
+        <div>
+          <h1 class="display-name text-[34px] font-semibold tracking-tight flex items-center gap-2" data-test="display-name">{{ profile.display_name }}{% if profile.is_verified %} <span class="badge-verified inline-flex items-center gap-1 text-[12px] font-medium bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full" title="Identity verified by the operator." data-test="verified-badge">✓ Verified</span>{% endif %}</h1>
+        </div>
+      </div>
+
+      <p class="bio text-[17px] leading-[1.6] text-inkSoft mt-6 max-w-[580px] whitespace-pre-line">{{ profile.bio }}</p>
+
+      {% if services %}
+        <div class="services mt-8">
+          <p class="eyebrow uppercase text-[11.5px] font-semibold text-inkMute tracking-widest">Glad to help with</p>
+          <div class="service-tags flex flex-wrap gap-2 mt-3" data-test="services">
+            {% for svc in services %}
+              <span class="tag bg-sage-soft text-sage-deep text-[13px] font-medium rounded-[8px] px-3 py-1.5" data-test="service-tag">{{ svc.display_label }}{% if not svc.is_freetext and svc.custom_description %} <span class="text-[12px] text-sage-deep/70">— {{ svc.custom_description }}</span>{% endif %}</span>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      {% if has_scheduling %}
+      <div class="scheduling-note bg-bgCard border border-rule rounded-[10px] mt-8 p-5 text-[13px] text-inkSoft">
+        Booking happens on {{ profile.first_name }}'s scheduling tool. Sadaqa Jariyah doesn't see your appointment, your name, or your reason for booking.
+      </div>
+      {% endif %}
+    </div>
+
+    {% if has_scheduling %}
+    <aside class="sticky-cta sticky top-5 bg-sage-deep text-bgCard rounded-[14px] p-6" data-test="sticky-cta">
+      <p class="eyebrow uppercase text-[11.5px] tracking-widest font-semibold text-sage-soft">Schedule a session</p>
+      <h2 class="display-headline text-[22px] font-semibold tracking-tight mt-2">Book directly with {{ profile.first_name }}.</h2>
+
+      <div class="consent-block" data-test="schedule-consent">
+        <label class="consent-label">
+          <input type="checkbox" id="schedule-consent" data-consent="schedule" data-test="schedule-consent-checkbox" required>
+          <span class="consent-text">I understand that I need to exercise caution with any information I share during scheduling or during the consultation and that the person I'm scheduling with might not be who I am expecting and that any advice I receive can be wrong or unreliable and I am responsible for the consequences of following it.</span>
+        </label>
+      </div>
+
+      <a href="{{ profile.scheduling_url }}" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer"
+         class="btn btn-primary schedule-btn is-locked block w-full text-center bg-bgCard text-ink rounded-[10px] py-3 mt-3 font-semibold text-[15px]"
+         data-test="schedule-cta"
+         data-consent-target="schedule"
+         aria-disabled="true">Schedule with me →</a>
+      <p class="schedule-hint is-warning text-[12px] text-bgCard/80 mt-2 text-center"
+         data-test="schedule-hint"
+         data-locked-text="Check the box above to enable the link."
+         data-unlocked-text="Opens in a new tab"
+         aria-live="polite">Check the box above to enable the link.</p>
+
+      {% if profile.feedback_url %}
+        <a href="{{ profile.feedback_url }}" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer"
+           class="btn btn-outline block w-full text-center border border-bgCard/40 text-bgCard rounded-[10px] py-3 mt-4 font-medium text-[14px]" data-test="feedback-cta">Send anonymous feedback →</a>
+        <p class="text-[11.5px] text-bgCard/70 mt-2">Opens an anonymous form in a new tab</p>
+      {% endif %}
+    </aside>
+    {% endif %}
+  </div>
+
+  {% if show_scheduling_caution %}
+    <aside class="caution-panel scheduling-caution bg-[#FBF1D6] border border-[#E8D58A] text-[#6B5418] rounded-[10px] p-4 mt-6 max-w-[580px]" data-test="scheduling-caution" role="note">
+      <p><span aria-hidden="true">⚠</span> Sadaqa Jariyah doesn't recognize this scheduling tool. Be cautious on the linked site and never share confidential information there.</p>
+    </aside>
+  {% endif %}
+
+  {% if show_feedback_caution %}
+    <aside class="caution-panel feedback-caution bg-[#FBF1D6] border border-[#E8D58A] text-[#6B5418] rounded-[10px] p-4 mt-4 max-w-[580px]" data-test="feedback-caution" role="note">
+      <p><span aria-hidden="true">⚠</span> This feedback form should be anonymous — it should not ask for your name, email, or any other personal details. Sadaqa Jariyah cannot verify what the form requests, so please check before submitting.</p>
+    </aside>
+  {% endif %}
+
+  {% if is_owner and not has_scheduling %}
+    <div class="owner-empty-card mt-8 border-2 border-dashed border-rule bg-bgCard rounded-[12px] p-6 text-center max-w-[480px] mx-auto" data-test="owner-empty-card">
+      <h3 class="text-[16px] font-semibold">Add a scheduling link to publish</h3>
+      <p class="text-[13.5px] text-inkSoft mt-2 max-w-[360px] mx-auto">Once you link Calendly, Cal.com, or any scheduling tool, your profile will appear in the directory.</p>
+      <a href="/settings/" class="btn btn-primary inline-block bg-sage-deep text-bgCard rounded-[10px] px-5 py-2 mt-4 font-semibold text-[14px]">Add a scheduling link</a>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}
+
+{% block body_scripts %}
+{% if has_scheduling %}<script src="{% static 'profile-consent.js' %}" defer></script>{% endif %}
+{% endblock %}

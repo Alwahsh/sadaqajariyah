@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Log in · Sadaqa Jariyah{% endblock %}
+{% block content %}
+<section class="login-wrap bg-bgSoft py-16">
+  <div class="login-card mx-auto w-[380px] max-w-full bg-bgCard border border-rule rounded-[14px] p-8">
+    <h1 class="text-[26px] font-semibold">Welcome back</h1>
+    <p class="text-inkSoft mt-2 text-[14px]">Log in to update your profile or scheduling link.</p>
+
+    <form method="post" data-client-hash class="mt-6 space-y-4" novalidate>
+      {% csrf_token %}
+      {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+      {% if form.non_field_errors %}
+        <div class="form-errors text-[13.5px] text-[#6B5418] bg-[#FBF1D6] border border-[#E8D58A] rounded-[10px] p-3" role="alert">
+          {% for err in form.non_field_errors %}<p>{{ err }}</p>{% endfor %}
+        </div>
+      {% endif %}
+
+      <label class="block">
+        <span class="block text-[13.5px] font-medium">Email</span>
+        <input type="email" name="email" value="{{ form.email.value|default:'' }}" required
+               class="form-input mt-1 w-full bg-bgCard border border-rule rounded-[10px] px-4 py-3" autocomplete="email">
+      </label>
+
+      <label class="block">
+        <span class="block text-[13.5px] font-medium">Password</span>
+        <input type="password" name="password" required class="form-input mt-1 w-full bg-bgCard border border-rule rounded-[10px] px-4 py-3" autocomplete="current-password">
+      </label>
+
+      {# Honeypot only — login is not timer-protected. #}
+      <label class="honeypot" aria-hidden="false">
+        <span>Leave this field empty.</span>
+        <input type="text" name="nickname_confirm" autocomplete="off" tabindex="0">
+      </label>
+
+      <button type="submit" class="btn btn-primary w-full bg-sage-deep text-bgCard rounded-[10px] py-3 text-[15px] font-semibold">Log in</button>
+    </form>
+
+    <hr class="my-6 border-rule">
+    <p class="text-center text-[13.5px] text-inkSoft">New here? <a href="{% url 'signup' %}" class="text-sage-deep font-semibold">Offer your time →</a></p>
+  </div>
+</section>
+{% endblock %}
+{% block body_scripts %}
+<script src="{% static 'users/auth-hash.js' %}"></script>
+{% endblock %}

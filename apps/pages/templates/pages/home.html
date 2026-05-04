@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Sadaqa Jariyah — community directory{% endblock %}
+{% block content %}
+<section class="hero bg-bgSoft border-b border-rule px-9 py-16 text-center" aria-labelledby="hero-h">
+  <div class="max-w-[820px] mx-auto">
+    <p class="live-count inline-flex items-center gap-2 bg-bgCard border border-rule rounded-full px-3 py-1 text-[12.5px] text-sage-deep font-medium" data-test="live-count">
+      <span class="dot inline-block w-[6px] h-[6px] bg-sage rounded-full" aria-hidden="true"></span>
+      <span data-test="live-count-text">{{ visible_count }} members offering their time</span>
+    </p>
+    <h1 id="hero-h" class="text-[60px] leading-[1.05] font-semibold tracking-tight mt-5" style="text-wrap: balance;">Find someone in your community to help.</h1>
+    <p class="text-[17px] text-inkSoft max-w-[640px] mx-auto mt-5">A directory of community members offering mentorship, counsel, and quiet hours of their time — in the spirit of <span class="text-sage-deep italic">sadaqa jariyah</span>, a charity that keeps flowing.</p>
+    <div class="cta-row flex gap-3 justify-center mt-7">
+      <a href="/directory/" class="btn btn-primary bg-sage-deep text-bgCard rounded-[10px] py-3 px-6 text-[15px] font-semibold">Browse the directory →</a>
+      <a href="{% url 'signup' %}" class="btn btn-ghost border border-rule rounded-[10px] py-3 px-6 text-[15px] text-ink">Offer your time</a>
+    </div>
+  </div>
+</section>
+
+<section class="how max-w-[980px] mx-auto px-9 py-12 grid grid-cols-1 md:grid-cols-3 gap-5">
+  <article class="card bg-bgCard border border-rule rounded-[14px] p-6">
+    <div class="text-[12px] text-clay font-mono">01</div>
+    <h2 class="text-[18px] font-semibold mt-2">Browse</h2>
+    <p class="text-[13.5px] text-inkSoft mt-2">Search community members by name, bio, or service. Filter by category to narrow.</p>
+  </article>
+  <article class="card bg-bgCard border border-rule rounded-[14px] p-6">
+    <div class="text-[12px] text-clay font-mono">02</div>
+    <h2 class="text-[18px] font-semibold mt-2">Read</h2>
+    <p class="text-[13.5px] text-inkSoft mt-2">Open a profile to read the bio, the services offered, and how scheduling works.</p>
+  </article>
+  <article class="card bg-bgCard border border-rule rounded-[14px] p-6">
+    <div class="text-[12px] text-clay font-mono">03</div>
+    <h2 class="text-[18px] font-semibold mt-2">Schedule</h2>
+    <p class="text-[13.5px] text-inkSoft mt-2">Use the member's own scheduling tool to book — Sadaqa Jariyah doesn't see your appointment.</p>
+  </article>
+</section>
+{% endblock %}

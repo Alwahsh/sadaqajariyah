@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Privacy notice · Sadaqa Jariyah{% endblock %}
+{% block content %}
+<section class="bg-bgSoft border-b border-rule px-9 py-10">
+  <div class="max-w-[680px] mx-auto">
+    <p class="eyebrow uppercase text-[12px] tracking-widest text-sage-deep font-semibold">PRIVACY NOTICE</p>
+    <h1 class="text-[40px] leading-[1.1] font-semibold tracking-tight mt-3">What we hold, and what we don't.</h1>
+    <p class="font-mono text-[13px] text-inkMute mt-3">Last updated 3 May 2026</p>
+  </div>
+</section>
+
+<article class="prose max-w-[680px] mx-auto px-9 py-12 text-[14.5px] leading-[1.6] text-inkSoft">
+  <section class="block-section py-3 border-b border-rule">
+    <h2 class="text-[19px] font-semibold text-ink">What we collect at signup</h2>
+    <p>We collect your email address, a peppered hash of your password (we never store the password itself), and your chosen username. IP addresses appear only in our hosting provider's transient access logs — they are not stored in our application database.</p>
+  </section>
+
+  <section class="block-section py-3 border-b border-rule">
+    <h2 class="text-[19px] font-semibold text-ink">What's shown publicly</h2>
+    <p>Your first name (always), your last name (only if you fill it in), your bio, the services you offer (with optional per-service descriptions), your scheduling URL, your optional anonymous-feedback URL, and a "✓ Verified" badge if the operator has personally verified your account. All profiles with a scheduling URL appear in the directory; the badge is the only difference between a verified and an unverified profile.</p>
+  </section>
+
+  <section class="block-section py-3 border-b border-rule">
+    <h2 class="text-[19px] font-semibold text-ink">No outbound email</h2>
+    <p>The platform sends no outbound email — no signup confirmation, no welcome message, no password-reset link. If you forget your password or want your account deleted, contact the operator out-of-band at <span class="text-ink font-medium">{{ OPERATOR_CONTACT_EMAIL }}</span>. The operator handles password reset using a management command (you receive a temporary password out-of-band and are forced to change it on first login).</p>
+  </section>
+
+  <section class="block-section py-3 border-b border-rule">
+    <h2 class="text-[19px] font-semibold text-ink">Scheduling links</h2>
+    <p>Clicking a member's "Schedule with me" button hands you off to their own third-party scheduling tool (Calendly, Cal.com, etc.). That tool's privacy policy applies to your booking — Sadaqa Jariyah neither sees your appointment time, your name, nor your reason for booking.</p>
+  </section>
+
+  <section class="block-section py-3 border-b border-rule">
+    <h2 class="text-[19px] font-semibold text-ink">Anonymous feedback links</h2>
+    <p>Some members publish a third-party form (Google Forms, Microsoft Forms, etc.) for anonymous feedback. Submissions go to that form's owner under the form provider's privacy policy — Sadaqa Jariyah does not see the responses.</p>
+  </section>
+
+  <section class="block-section py-3 border-b border-rule">
+    <h2 class="text-[19px] font-semibold text-ink">Cookies</h2>
+    <p>We set exactly two cookies: a Django session cookie (created when you log in) and a CSRF token cookie (created when you first load a form). Both are strictly necessary for the site to function. We do not use any analytics or third-party tracking cookies.</p>
+  </section>
+
+  <section class="block-section py-3">
+    <h2 class="text-[19px] font-semibold text-ink">Account deletion</h2>
+    <p>To delete your account, contact the operator at <span class="text-ink font-medium">{{ OPERATOR_CONTACT_EMAIL }}</span>. We deactivate immediately and hard-delete within 30 days.</p>
+  </section>
+</article>
+{% endblock %}

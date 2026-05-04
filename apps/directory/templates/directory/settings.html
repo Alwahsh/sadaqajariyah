@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Your profile · Settings{% endblock %}
+{% block content %}
+<section class="settings max-w-[720px] mx-auto px-9 py-10" data-test="settings-page">
+  <p class="crumb text-[13px] text-inkSoft">Settings · Profile</p>
+  <h1 class="text-[32px] font-semibold mt-2">Your profile</h1>
+  <p class="url-preview font-mono text-[13px] text-inkSoft mt-2" data-test="url-preview">What appears at <span class="text-sage-deep">sadaqajariyah.online/p/{{ username }}</span></p>
+
+  <form method="post" class="mt-8 space-y-5" novalidate>
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+      <div class="form-errors text-[13.5px] text-[#6B5418] bg-[#FBF1D6] border border-[#E8D58A] rounded-[10px] p-3" role="alert">
+        {% for err in form.non_field_errors %}<p>{{ err }}</p>{% endfor %}
+      </div>
+    {% endif %}
+
+    <label class="block">
+      <span class="block text-[13.5px] font-medium">First name <span aria-hidden="true">*</span></span>
+      <input type="text" name="first_name" value="{{ form.first_name.value|default:'' }}" required
+             class="form-input mt-1 w-full bg-bgCard border border-rule rounded-[10px] px-4 py-3">
+      {% for err in form.first_name.errors %}<span class="text-[12.5px] text-red-700 block mt-1">{{ err }}</span>{% endfor %}
+    </label>
+
+    <label class="block">
+      <span class="block text-[13.5px] font-medium">Last name</span>
+      <input type="text" name="last_name" value="{{ form.last_name.value|default:'' }}"
+             class="form-input mt-1 w-full bg-bgCard border border-rule rounded-[10px] px-4 py-3">
+      <span class="text-[12.5px] text-inkSoft block mt-1">Optional. Leave blank to publish only your first name.</span>
+      {% for err in form.last_name.errors %}<span class="text-[12.5px] text-red-700 block mt-1">{{ err }}</span>{% endfor %}
+    </label>
+
+    <label class="block">
+      <span class="block text-[13.5px] font-medium">Bio <span aria-hidden="true">*</span></span>
+      <textarea name="bio" rows="4" required minlength="20" maxlength="1000"
+                class="form-input mt-1 w-full bg-bgCard border border-rule rounded-[10px] px-4 py-3">{{ form.bio.value|default:'' }}</textarea>
+      <span class="text-[12.5px] text-inkSoft block mt-1">World-readable. 20–1000 characters.</span>
+      {% for err in form.bio.errors %}<span class="text-[12.5px] text-red-700 block mt-1">{{ err }}</span>{% endfor %}
+    </label>
+
+    <label class="block">
+      <span class="block text-[13.5px] font-medium">Scheduling link</span>
+      <input type="url" name="scheduling_url" value="{{ form.scheduling_url.value|default:'' }}"
+             class="form-input mt-1 w-full bg-bgCard border border-rule rounded-[10px] px-4 py-3"
+             placeholder="https://calendly.com/me/30min">
+      <span class="text-[12.5px] text-inkSoft block mt-1">Calendly, Cal.com, SavvyCal, Google appointments — any tool. Must start with https://</span>
+      {% for err in form.scheduling_url.errors %}<span class="text-[12.5px] text-red-700 block mt-1">{{ err }}</span>{% endfor %}
+    </label>
+
+    <label class="block">
+      <span class="block text-[13.5px] font-medium">Anonymous feedback link</span>
+      <input type="url" name="feedback_url" value="{{ form.feedback_url.value|default:'' }}"
+             class="form-input mt-1 w-full bg-bgCard border border-rule rounded-[10px] px-4 py-3"
+             placeholder="https://forms.google.com/...">
+      <span class="text-[12.5px] text-inkSoft block mt-1">Optional. A Google Form, Microsoft Form, or any link where people can send you anonymous feedback. Visitors will see a "Send anonymous feedback" button on your public profile. Must start with https://</span>
+      {% for err in form.feedback_url.errors %}<span class="text-[12.5px] text-red-700 block mt-1">{{ err }}</span>{% endfor %}
+    </label>
+
+    <fieldset class="services-fieldset mt-4 border border-rule rounded-[10px] p-5">
+      <legend class="text-[13.5px] font-semibold px-2">Services you offer</legend>
+      {{ formset.management_form }}
+      {% if formset.non_form_errors %}
+        <div class="text-[12.5px] text-red-700">{% for e in formset.non_form_errors %}<p>{{ e }}</p>{% endfor %}</div>
+      {% endif %}
+      <div class="formset-rows space-y-3 mt-3">
+        {% for sub in formset %}
+          <div class="row flex flex-wrap items-start gap-3 border-b border-ruleSoft pb-3" data-test="service-row">
+            {% for hidden in sub.hidden_fields %}{{ hidden }}{% endfor %}
+            <div class="flex-1 min-w-[180px]">
+              <label class="text-[12.5px] block">Category</label>
+              <select name="{{ sub.category.html_name }}" class="form-input w-full bg-bgCard border border-rule rounded-[10px] px-3 py-2">
+                <option value="">—</option>
+                {% for cat in sub.fields.category.queryset %}
+                  <option value="{{ cat.id }}" {% if sub.category.value == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                {% endfor %}
+              </select>
+              {% for err in sub.category.errors %}<span class="text-[12.5px] text-red-700 block mt-1">{{ err }}</span>{% endfor %}
+            </div>
+            <div class="flex-1 min-w-[220px]">
+              <label class="text-[12.5px] block">Description</label>
+              <input type="text" name="{{ sub.custom_description.html_name }}" value="{{ sub.custom_description.value|default:'' }}" maxlength="280"
+                     class="form-input w-full bg-bgCard border border-rule rounded-[10px] px-3 py-2"
+                     placeholder="Optional — describe your specific offering">
+              {% for err in sub.custom_description.errors %}<span class="text-[12.5px] text-red-700 block mt-1">{{ err }}</span>{% endfor %}
+            </div>
+            {% if formset.can_delete %}
+              <label class="text-[12.5px] mt-6">
+                <input type="checkbox" name="{{ sub.DELETE.html_name }}" {% if sub.DELETE.value %}checked{% endif %}> Remove
+              </label>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    </fieldset>
+
+    <div class="actions flex gap-3 pt-4 border-t border-rule">
+      <button type="submit" class="btn btn-primary bg-sage-deep text-bgCard rounded-[10px] py-3 px-5 text-[15px] font-semibold">Save changes</button>
+      <a href="/p/{{ username }}/" class="btn btn-ghost border border-rule rounded-[10px] py-3 px-5 text-[14px] text-ink">View public profile</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

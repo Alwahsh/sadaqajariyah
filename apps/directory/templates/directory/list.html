@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% load directory_extras %}
+{% block title %}Directory · Sadaqa Jariyah{% endblock %}
+{% block content %}
+<section class="directory max-w-[1080px] mx-auto px-9 py-10" data-test="directory">
+  <header class="mb-8">
+    <h1 class="text-[32px] font-semibold tracking-tight">Directory</h1>
+    <p class="text-inkSoft mt-2 text-[14.5px]">{{ total_count }} members offering their time. Search and filter to find the right person.</p>
+  </header>
+
+  <form method="get" class="search-row" role="search" aria-label="Directory search">
+    <div class="search-input flex items-center gap-3 bg-bgCard border border-rule rounded-[10px] px-4 py-3">
+      <svg width="16" height="16" viewBox="0 0 24 24" stroke="#5C6660" fill="none" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <label class="sr-only" for="q">Search members</label>
+      <input id="q" name="q" type="text" value="{{ q }}" maxlength="80" placeholder="Search by name, bio, or service description" class="flex-1 bg-transparent outline-none text-[14px]">
+      {% if q %}<button type="button" onclick="window.location='?{% if selected_category %}category={{ selected_category }}{% endif %}'" class="clear-btn text-[12.5px] text-sage-deep" data-test="clear-search">Clear</button>{% endif %}
+      {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
+    </div>
+
+    <div class="chips flex flex-wrap gap-2 mt-4" role="group" aria-label="Categories">
+      <a href="?{% if q %}q={{ q }}{% endif %}" class="chip px-3 py-1.5 rounded-[8px] border text-[13px] {% if not selected_category %}bg-sage-soft border-sage-deep text-sage-deep{% else %}bg-bgCard border-rule text-inkSoft{% endif %}" data-test="chip-all">All</a>
+      {% for cat in categories %}
+        <a href="?category={{ cat.slug }}{% if q %}&q={{ q }}{% endif %}" class="chip px-3 py-1.5 rounded-[8px] border text-[13px] {% if selected_category == cat.slug %}bg-sage-soft border-sage-deep text-sage-deep{% else %}bg-bgCard border-rule text-inkSoft{% endif %}" data-test="chip-{{ cat.slug }}">{{ cat.name }} <span class="opacity-60">{{ cat.profile_count }}</span></a>
+      {% endfor %}
+    </div>
+  </form>
+
+  <div class="listing mt-8 bg-bgCard border border-rule rounded-[12px] overflow-hidden" data-test="profile-list">
+    {% for profile in profiles %}
+      <article class="row grid grid-cols-[52px_1fr_220px_auto] gap-5 px-5 py-4 {% if not forloop.last %}border-b border-ruleSoft{% endif %}" data-test="profile-card" data-username="{{ profile.user.username }}">
+        <div class="avatar w-11 h-11 bg-sage-soft text-sage-deep rounded-[12px] flex items-center justify-center text-[13px] font-semibold" aria-hidden="true">{{ profile.display_name|initials }}</div>
+        <div>
+          <div class="flex items-center gap-2">
+            <strong class="text-[16px] font-semibold">{{ profile.display_name }}</strong>
+            {% if profile.is_verified %}
+              <span class="badge-verified inline-flex items-center gap-1 text-[11.5px] font-medium bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full" title="Identity verified by the operator." data-test="verified-badge">✓ Verified</span>
+            {% endif %}
+          </div>
+          <p class="text-[13px] text-inkSoft mt-1 line-clamp-2">{{ profile.bio }}</p>
+        </div>
+        <div class="tags flex flex-wrap gap-2 items-start">
+          {% for svc in profile.providerservice_set.all|slice:":2" %}
+            <span class="tag bg-sage-soft text-sage-deep text-[11.5px] font-medium rounded-md px-2 py-0.5">{{ svc.display_label }}</span>
+          {% endfor %}
+        </div>
+        <div class="action self-center">
+          <a href="/p/{{ profile.user.username }}/" class="btn btn-ghost border border-rule rounded-[8px] px-3 py-1.5 text-[13px] text-inkSoft hover:text-ink">View →</a>
+        </div>
+      </article>
+    {% empty %}
+      <div class="empty p-12 text-center" data-test="empty-state">
+        <p class="italic text-inkSoft text-[17px]" style="font-family: 'Fraunces', serif;">No one matches that search yet.</p>
+      </div>
+    {% endfor %}
+  </div>
+
+  {% if paginator.num_pages > 1 %}
+    <div class="pagination mt-6 flex items-center justify-between" data-test="paginator">
+      <p class="text-[13px] text-inkSoft">Showing {{ page_obj.start_index }}–{{ page_obj.end_index }} of {{ paginator.count }}</p>
+      <nav class="flex gap-3 text-[13px]">
+        {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}" class="text-inkSoft hover:text-ink">← Prev</a>{% endif %}
+        <span class="text-ink font-semibold">{{ page_obj.number }}</span>
+        {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}" class="text-inkSoft hover:text-ink">Next →</a>{% endif %}
+      </nav>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

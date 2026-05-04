@@ -1,0 +1,68 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Sadaqa Jariyah{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Noto+Naskh+Arabic:wght@400;500&display=swap">
+  <link rel="stylesheet" href="{% static 'styles.css' %}">
+  {% block head_extra %}{% endblock %}
+</head>
+<body class="bg-bg text-ink">
+  <a href="#main" class="skip-link sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:bg-bgCard focus:text-ink focus:px-3 focus:py-2 focus:rounded-md focus-visible:ring-2 focus-visible:ring-sage-deep">Skip to main content</a>
+
+  <aside class="site-disclaimer" role="note" data-test="site-disclaimer">
+    <p><span aria-hidden="true">⚠</span> Services provided here are by volunteers and for free. None of the services has a guaranteed quality or reliability. Use at your own discretion if you trust the experience of the member giving you the service.</p>
+  </aside>
+
+  <nav class="site-nav border-b border-rule px-9 py-4 flex items-center justify-between" aria-label="Primary">
+    <a href="/" class="wordmark flex items-center gap-3" aria-label="Sadaqa Jariyah home">
+      <svg class="wordmark-mark" viewBox="0 0 28 28" width="28" height="28" aria-label="Sadaqa Jariyah" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="14" cy="14" r="14" fill="#3F5D4A" aria-hidden="true"/>
+        <path d="M14 6 C 16 10, 18 12, 22 14 C 18 16, 16 18, 14 22 C 12 18, 10 16, 6 14 C 10 12, 12 10, 14 6 Z" fill="#FBF7EE" opacity="0.95" aria-hidden="true"/>
+      </svg>
+      <span class="wordmark-text flex flex-col leading-tight">
+        <span class="font-semibold text-[16px] text-ink tracking-tight">Sadaqa Jariyah</span>
+        <span lang="ar" dir="rtl" class="text-[12px] text-sage-deep" style="font-family: 'Noto Naskh Arabic', serif;">صدقة جارية</span>
+      </span>
+    </a>
+    <div class="nav-links flex items-center gap-7 text-[14px]">
+      <a href="/" class="text-inkSoft hover:text-ink">Home</a>
+      <a href="/directory/" class="text-inkSoft hover:text-ink">Directory</a>
+      {% if user.is_authenticated %}
+        <a href="/settings/" class="text-inkSoft hover:text-ink">Settings</a>
+        <form method="post" action="{% url 'logout' %}" class="inline">{% csrf_token %}
+          <button type="submit" class="text-inkSoft hover:text-ink">Log out</button>
+        </form>
+      {% else %}
+        <a href="{% url 'login' %}" class="text-inkSoft hover:text-ink">Log in</a>
+        <a href="{% url 'signup' %}" class="btn btn-primary text-[13px] py-2 px-4 rounded-[10px] bg-sage-deep text-bgCard">Offer your time</a>
+      {% endif %}
+    </div>
+  </nav>
+
+  {% if messages %}
+    <div class="messages mx-auto max-w-[980px] px-9 py-3" role="status">
+      {% for message in messages %}
+        <div class="msg msg-{{ message.tags }} px-4 py-3 rounded-[10px] {% if 'warning' in message.tags %}bg-[#FBF1D6] border border-[#E8D58A] text-[#6B5418]{% elif 'success' in message.tags %}bg-sage-soft text-sage-deep{% else %}bg-bgCard text-ink{% endif %}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <main id="main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer border-t border-rule px-9 py-6 text-[12.5px] text-inkMute flex items-center justify-between">
+    <div>© 2026 Sadaqa Jariyah · sadaqajariyah.online · Run by community volunteers</div>
+    <div class="flex gap-5">
+      <a href="{% url 'privacy' %}">Privacy</a>
+      <a href="{% url 'terms' %}">Terms</a>
+    </div>
+  </footer>
+
+  {% block body_scripts %}{% endblock %}
+</body>
+</html>
