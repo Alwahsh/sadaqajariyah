@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Your profile · Settings{% endblock %}
 {% block content %}
 <section class="settings max-w-[720px] mx-auto px-9 py-10" data-test="settings-page">
@@ -55,41 +56,84 @@
       {% for err in form.feedback_url.errors %}<span class="text-[12.5px] text-red-700 block mt-1">{{ err }}</span>{% endfor %}
     </label>
 
-    <fieldset class="services-fieldset mt-4 border border-rule rounded-[10px] p-5">
-      <legend class="text-[13.5px] font-semibold px-2">Services you offer</legend>
+    <fieldset class="services-fieldset">
+      <legend>Services you offer</legend>
+      <p class="services-help">Pick a category and optionally describe your specific offering. Use the <strong>Other</strong> category for anything not listed (description required for those). Up to 12 services.</p>
+
       {{ formset.management_form }}
       {% if formset.non_form_errors %}
-        <div class="text-[12.5px] text-red-700">{% for e in formset.non_form_errors %}<p>{{ e }}</p>{% endfor %}</div>
+        <div class="formset-errors" role="alert">
+          {% for e in formset.non_form_errors %}<p>{{ e }}</p>{% endfor %}
+        </div>
       {% endif %}
-      <div class="formset-rows space-y-3 mt-3">
+
+      <div class="formset-rows" data-formset-rows data-formset-prefix="providerservice_set" data-max="12">
         {% for sub in formset %}
-          <div class="row flex flex-wrap items-start gap-3 border-b border-ruleSoft pb-3" data-test="service-row">
+          <div class="service-row" data-formset-row data-test="service-row">
             {% for hidden in sub.hidden_fields %}{{ hidden }}{% endfor %}
-            <div class="flex-1 min-w-[180px]">
-              <label class="text-[12.5px] block">Category</label>
-              <select name="{{ sub.category.html_name }}" class="form-input w-full bg-bgCard border border-rule rounded-[10px] px-3 py-2">
-                <option value="">—</option>
-                {% for cat in sub.fields.category.queryset %}
-                  <option value="{{ cat.id }}" {% if sub.category.value == cat.id %}selected{% endif %}>{{ cat.name }}</option>
-                {% endfor %}
-              </select>
-              {% for err in sub.category.errors %}<span class="text-[12.5px] text-red-700 block mt-1">{{ err }}</span>{% endfor %}
-            </div>
-            <div class="flex-1 min-w-[220px]">
-              <label class="text-[12.5px] block">Description</label>
-              <input type="text" name="{{ sub.custom_description.html_name }}" value="{{ sub.custom_description.value|default:'' }}" maxlength="280"
-                     class="form-input w-full bg-bgCard border border-rule rounded-[10px] px-3 py-2"
-                     placeholder="Optional — describe your specific offering">
-              {% for err in sub.custom_description.errors %}<span class="text-[12.5px] text-red-700 block mt-1">{{ err }}</span>{% endfor %}
-            </div>
             {% if formset.can_delete %}
-              <label class="text-[12.5px] mt-6">
-                <input type="checkbox" name="{{ sub.DELETE.html_name }}" {% if sub.DELETE.value %}checked{% endif %}> Remove
-              </label>
+              <input type="hidden" name="{{ sub.DELETE.html_name }}" value="" data-formset-delete>
             {% endif %}
+            <div class="service-row-fields">
+              <label class="service-row-field">
+                <span class="row-label">Category</span>
+                <select name="{{ sub.category.html_name }}" class="form-input">
+                  <option value="">—</option>
+                  {% for cat in sub.fields.category.queryset %}
+                    <option value="{{ cat.id }}" {% if sub.category.value|stringformat:"s" == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+                  {% endfor %}
+                </select>
+                {% for err in sub.category.errors %}<span class="field-error">{{ err }}</span>{% endfor %}
+              </label>
+              <label class="service-row-field">
+                <span class="row-label">Description</span>
+                <input type="text" name="{{ sub.custom_description.html_name }}" value="{{ sub.custom_description.value|default:'' }}" maxlength="280"
+                       class="form-input"
+                       placeholder="Optional — describe your specific offering">
+                {% for err in sub.custom_description.errors %}<span class="field-error">{{ err }}</span>{% endfor %}
+              </label>
+            </div>
+            <button type="button" class="service-row-remove" data-formset-remove data-test="service-remove" aria-label="Remove this service">
+              <span aria-hidden="true">×</span>
+            </button>
           </div>
         {% endfor %}
       </div>
+
+      <button type="button" class="service-add-btn" data-formset-add data-test="service-add">
+        <span aria-hidden="true">+</span> Add another service
+      </button>
+
+      <template data-formset-empty>
+        <div class="service-row" data-formset-row data-test="service-row">
+          {% with sub=formset.empty_form %}
+            {% for hidden in sub.hidden_fields %}{{ hidden }}{% endfor %}
+            {% if formset.can_delete %}
+              <input type="hidden" name="{{ sub.DELETE.html_name }}" value="" data-formset-delete>
+            {% endif %}
+            <div class="service-row-fields">
+              <label class="service-row-field">
+                <span class="row-label">Category</span>
+                <select name="{{ sub.category.html_name }}" class="form-input">
+                  <option value="">—</option>
+                  {% for cat in sub.fields.category.queryset %}
+                    <option value="{{ cat.id }}">{{ cat.name }}</option>
+                  {% endfor %}
+                </select>
+              </label>
+              <label class="service-row-field">
+                <span class="row-label">Description</span>
+                <input type="text" name="{{ sub.custom_description.html_name }}" value="" maxlength="280"
+                       class="form-input"
+                       placeholder="Optional — describe your specific offering">
+              </label>
+            </div>
+            <button type="button" class="service-row-remove" data-formset-remove aria-label="Remove this service">
+              <span aria-hidden="true">×</span>
+            </button>
+          {% endwith %}
+        </div>
+      </template>
     </fieldset>
 
     <div class="actions flex gap-3 pt-4 border-t border-rule">
@@ -98,4 +142,8 @@
     </div>
   </form>
 </section>
+{% endblock %}
+
+{% block body_scripts %}
+<script src="{% static 'formset.js' %}" defer></script>
 {% endblock %}

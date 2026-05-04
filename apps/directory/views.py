@@ -168,11 +168,11 @@ def profile_edit_view(request):
                 messages.success(request, "Profile saved.")
             return redirect("/settings/")
     else:
-        # Render existing rows + enough blank rows so total reaches the 12-row cap.
-        # That way a user can pick any combination of services up to the maximum
-        # in a single visit.
+        # Render existing rows; users with no services see 1 blank row to start.
+        # Additional rows are added on demand via the Add Another button (JS),
+        # up to the formset's max_num=12 cap.
         existing = profile.providerservice_set.count()
-        blank = max(0, 12 - existing)
+        blank = 1 if existing == 0 else 0
         Formset = make_provider_service_formset(extra=blank)
         form = ProfileEditForm(instance=profile)
         formset = Formset(instance=profile)
