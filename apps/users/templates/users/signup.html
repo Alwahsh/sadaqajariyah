@@ -9,6 +9,11 @@
   </div>
 </section>
 <section class="signup-form max-w-[480px] mx-auto px-9 py-10">
+  <aside class="intention-box" data-test="intention-box" role="note">
+    <p class="intention-eyebrow">Before you sign up</p>
+    <p class="intention-body">Take a minute to set your intentions. Try to visualize the reward you get from helping someone for free for the sake of Allah. Hope that you get reward for everytime they use it and everytime someone benefits from them because of it. This is a better reward than any recognition you can get in this life. Try to focus on this idea while creating your account.</p>
+  </aside>
+
   <form method="post" data-client-hash class="space-y-4" novalidate>
     {% csrf_token %}
     {% if form.non_field_errors %}
