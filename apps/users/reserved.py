@@ -5,5 +5,5 @@ RESERVED_USERNAMES = frozenset({
     "api", "static", "media", "about", "contact", "terms",
     "privacy", "help", "search", "feedback", "support", "moderator",
     "root", "system", "users", "home", "www", "mail",
-    "robots", "sitemap", "health", "status", "security", "null", "undefined",
+    "robots", "sitemap", "health", "healthz", "status", "security", "null", "undefined",
 })

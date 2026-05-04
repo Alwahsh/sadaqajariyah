@@ -258,3 +258,15 @@ Generate `SECRET_KEY` and `PEPPER` with:
 ```sh
 python -c "import secrets; print(secrets.token_urlsafe(64))"
 ```
+
+### Health check
+
+The app exposes a lightweight liveness/readiness probe at:
+
+```
+/healthz
+```
+
+Both `/healthz` and `/healthz/` resolve directly (no APPEND_SLASH redirect). It pings the DB, returns `200 ok` (`text/plain`) when healthy, and `503 db unavailable` when the DB connection raises. No template rendering, no auth, no Google Fonts CSS — minimal overhead so it's safe to probe on a tight interval.
+
+Configure Render's "Health Check Path" field to `/healthz`. The endpoint is exempt from the must-change-password redirect, so an authenticated session in flight never breaks the probe.

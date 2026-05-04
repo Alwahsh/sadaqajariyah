@@ -47,6 +47,7 @@ class NoIndexHeaderMiddleware:
 ALLOWED_PATHS_WHEN_FORCED_PWCHANGE = (
     "/settings/password/",
     "/accounts/logout/",
+    "/healthz",
 )
 
 
