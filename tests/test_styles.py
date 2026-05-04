@@ -139,6 +139,56 @@ def test_home_page_links_google_fonts(client):
     )
 
 
+def test_mobile_nav_stacks_vertically():
+    """Original bug: on narrow viewports, .site-nav's justify-between layout
+    jammed the wordmark icon up against the nav-links cluster. The fix is a
+    media query that switches site-nav to column-flex so wordmark and links
+    stack with a clear gap.
+    """
+    text = _stylesheet_text()
+    # Find the small-screen media block and confirm .site-nav switches to column.
+    # We look for any @media rule with a max-width <= 720px that targets .site-nav.
+    pattern = re.compile(
+        r"@media[^{]*max-width:\s*(\d+)px[^{]*\{(?P<body>(?:[^{}]|\{[^{}]*\})*)\}",
+        re.DOTALL,
+    )
+    found = False
+    for m in pattern.finditer(text):
+        try:
+            breakpoint_px = int(m.group(1))
+        except ValueError:
+            continue
+        body = m.group("body")
+        if breakpoint_px <= 768 and ".site-nav" in body and "flex-direction: column" in body:
+            found = True
+            break
+    assert found, (
+        "no @media (max-width <= 768px) rule sets .site-nav to flex-direction: column — "
+        "the mobile nav will jam the wordmark against the link cluster again"
+    )
+
+
+def test_mobile_nav_links_can_wrap():
+    """The nav-links cluster must allow flex-wrap on mobile so a long set of
+    links doesn't overflow the row."""
+    text = _stylesheet_text()
+    pattern = re.compile(
+        r"@media[^{]*max-width:\s*(\d+)px[^{]*\{(?P<body>(?:[^{}]|\{[^{}]*\})*)\}",
+        re.DOTALL,
+    )
+    found = False
+    for m in pattern.finditer(text):
+        try:
+            breakpoint_px = int(m.group(1))
+        except ValueError:
+            continue
+        body = m.group("body")
+        if breakpoint_px <= 768 and ".nav-links" in body and "flex-wrap: wrap" in body:
+            found = True
+            break
+    assert found, "mobile @media block must set .nav-links flex-wrap: wrap"
+
+
 @pytest.mark.django_db
 def test_csp_allows_stylesheet_origins(client):
     """CSP must allow the stylesheet origins the templates reference, otherwise the

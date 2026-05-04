@@ -875,6 +875,24 @@ label { display: block; }
   .row .avatar { grid-area: avatar; }
   .row .tags { grid-area: tags; }
   .row .action { grid-area: action; justify-self: end; }
-  .nav-links { gap: 14px; }
   .hero h1 { font-size: 40px !important; }
+}
+
+/* Mobile nav: stack the wordmark and link cluster vertically so they aren't
+ * jammed against each other when the viewport is too narrow for the
+ * justify-between layout. */
+@media (max-width: 720px) {
+  .site-nav {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 18px;
+  }
+  .site-nav .wordmark { width: 100%; }
+  .nav-links {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 12px 18px;
+    row-gap: 12px;
+  }
 }
