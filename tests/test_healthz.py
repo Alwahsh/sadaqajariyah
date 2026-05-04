@@ -100,3 +100,49 @@ def test_healthz_path_is_reserved_username():
     but the reservation removes the chance of confusion."""
     from apps.users.reserved import RESERVED_USERNAMES
     assert "healthz" in RESERVED_USERNAMES
+
+
+@pytest.mark.django_db
+def test_healthz_works_with_disallowed_host(client, settings):
+    """Render's probe hits the platform-internal IP, so the Host header is
+    NOT in ALLOWED_HOSTS. The /healthz path must short-circuit BEFORE the
+    host check, otherwise Django returns 400 DisallowedHost and Render marks
+    the service unhealthy.
+
+    Original symptom: `Render/1.0` user-agent probes returned 400 every 10s,
+    keeping the service permanently unhealthy.
+    """
+    settings.ALLOWED_HOSTS = ["only-this.example"]
+    settings.DEBUG = False
+    resp = client.get("/healthz", HTTP_HOST="10.225.24.144")
+    assert resp.status_code == 200, (
+        f"healthz must bypass ALLOWED_HOSTS; got {resp.status_code}. "
+        f"Likely HealthCheckMiddleware is missing from MIDDLEWARE[0]."
+    )
+    assert resp.content == b"ok"
+
+
+@pytest.mark.django_db
+def test_non_healthz_path_still_validates_host(client, settings):
+    """The bypass MUST be scoped to /healthz only — every other path must
+    still enforce ALLOWED_HOSTS, otherwise the bypass becomes a host-header
+    laundering vulnerability."""
+    settings.ALLOWED_HOSTS = ["only-this.example"]
+    settings.DEBUG = False
+    resp = client.get("/", HTTP_HOST="attacker.example")
+    assert resp.status_code == 400, (
+        "non-healthz paths must still 400 on a disallowed host"
+    )
+
+
+@pytest.mark.django_db
+def test_healthz_middleware_is_first(settings):
+    """HealthCheckMiddleware must sit at position 0 — anything earlier than
+    SecurityMiddleware would render the bypass moot."""
+    mw = settings.MIDDLEWARE
+    assert mw[0] == "apps.security.middleware.HealthCheckMiddleware", (
+        f"HealthCheckMiddleware must be MIDDLEWARE[0]; current first entry is {mw[0]}"
+    )
+    # Sanity: SecurityMiddleware comes after the bypass.
+    sec_idx = mw.index("django.middleware.security.SecurityMiddleware")
+    assert sec_idx > 0

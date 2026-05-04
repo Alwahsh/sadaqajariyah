@@ -28,6 +28,9 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    # MUST be first — short-circuits /healthz before the host check (Render's
+    # probe sends the platform-internal hostname, which isn't in ALLOWED_HOSTS).
+    "apps.security.middleware.HealthCheckMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",

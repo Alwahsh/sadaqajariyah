@@ -259,6 +259,33 @@ Generate `SECRET_KEY` and `PEPPER` with:
 python -c "import secrets; print(secrets.token_urlsafe(64))"
 ```
 
+### Build & start commands
+
+**Build command** (Render runs this on every deploy, after `pip install -r requirements.txt`):
+
+```sh
+python manage.py collectstatic --noinput && python manage.py check --deploy
+```
+
+`collectstatic` pulls `static/styles.css` and `static/profile-consent.js` into `staticfiles/` for WhiteNoise to serve with far-future cache headers. `check --deploy` fails the build on any production misconfiguration (missing `SECRET_KEY`, weak `PEPPER`, etc.).
+
+> Do **not** run `manage.py migrate` in the build phase — see the start command below for why.
+
+**Start command** (free tier — `migrate` is part of the start command because Render's pre-deploy hook is paid-only):
+
+```sh
+python manage.py migrate --noinput && gunicorn config.wsgi --bind 0.0.0.0:$PORT --workers 2 --timeout 30 --access-logfile -
+```
+
+- `migrate --noinput` — runs schema + seed migrations on every cold start. Idempotent; safe to re-run. The free tier has a single web instance, so there's no migrate race against a previous instance.
+- `gunicorn config.wsgi` — the WSGI entry point at `config/wsgi.py`.
+- `--bind 0.0.0.0:$PORT` — Render injects `$PORT`.
+- `--workers 2` — sensible default for free-tier CPU; tune after observing real load.
+- `--timeout 30` — a request that hangs longer than 30s gets killed (kills the worker, not the request).
+- `--access-logfile -` — sends gunicorn's access log to stdout so Render's log viewer captures it (Django's request logger only logs warnings+).
+
+**On upgrade to Render's paid plan**: move `python manage.py migrate --noinput` out of the start command and into Render's pre-deploy hook so concurrent web instances don't race.
+
 ### Health check
 
 The app exposes a lightweight liveness/readiness probe at:

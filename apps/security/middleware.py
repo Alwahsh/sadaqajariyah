@@ -1,5 +1,32 @@
 from django.conf import settings
+from django.http import HttpResponse
 from django.shortcuts import redirect
+
+
+HEALTHZ_PATHS = ("/healthz", "/healthz/")
+
+
+class HealthCheckMiddleware:
+    """Short-circuit /healthz before any host/CSRF/auth middleware runs.
+
+    Render's health probe hits the platform-internal IP, so the request's
+    Host header is the internal hostname, not the public domain in
+    ALLOWED_HOSTS. SecurityMiddleware then returns 400 Bad Request
+    (DisallowedHost). Intercepting here bypasses that entirely.
+
+    Position: must be FIRST in MIDDLEWARE — before SecurityMiddleware,
+    SessionMiddleware, AuthenticationMiddleware. Otherwise the host check
+    runs first and the probe still 400s.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        if request.path in HEALTHZ_PATHS:
+            from apps.pages.views import healthz_view
+            return healthz_view(request)
+        return self.get_response(request)
 
 CSP_VALUE = (
     "default-src 'self'; "
