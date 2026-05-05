@@ -142,6 +142,54 @@ def test_consent_styles_define_locked_state():
     assert "cursor" in block, ".schedule-btn.is-locked must change cursor (e.g. not-allowed)"
 
 
+def test_consent_checkbox_has_high_contrast_styling():
+    """Original mobile bug: the unchecked checkbox sat on the dark sage-deep
+    sticky CTA card and the iOS Safari default rendering was nearly invisible
+    (matched the card background). The fix is explicit `appearance: none`
+    + a cream/light fill so the box always stands out, regardless of OS.
+
+    This test pins all four load-bearing properties so a future refactor
+    can't silently revert to the browser default.
+    """
+    css_path = Path(settings.BASE_DIR, "static", "styles.css")
+    text = css_path.read_text()
+    m = re.search(
+        r'\.consent-label\s+input\[type="checkbox"\]\s*\{([^}]+)\}',
+        text,
+    )
+    assert m, "stylesheet missing the .consent-label checkbox rule"
+    block = m.group(1)
+    assert "appearance: none" in block, (
+        "checkbox must use appearance: none — without it iOS Safari renders "
+        "a near-invisible default checkbox on the dark CTA card"
+    )
+    assert "background" in block, (
+        "checkbox must have an explicit background color so it stands out"
+    )
+    assert "border" in block, "checkbox must have an explicit border"
+
+    # The :checked state must show a clearly different fill so users see
+    # their click took effect.
+    checked = re.search(
+        r'\.consent-label\s+input\[type="checkbox"\]:checked\s*\{([^}]+)\}',
+        text,
+    )
+    assert checked, "stylesheet missing the :checked state rule for the consent checkbox"
+    checked_block = checked.group(1)
+    assert "background" in checked_block, (
+        "checkbox :checked state must change background so users see they clicked it"
+    )
+
+    # Visible check-mark in the :checked state.
+    after = re.search(
+        r'\.consent-label\s+input\[type="checkbox"\]:checked::after\s*\{([^}]+)\}',
+        text,
+    )
+    assert after, "checked state must render a visible checkmark via ::after"
+    after_block = after.group(1)
+    assert "content" in after_block
+
+
 @pytest.mark.django_db
 def test_csp_allows_consent_script(client, make_profile_with_scheduling):
     """profile-consent.js is served from `/static/`, which is `'self'` — the

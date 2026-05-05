@@ -595,11 +595,42 @@ label { display: block; }
 }
 .consent-label input[type="checkbox"] {
   flex: none;
-  width: 18px;
-  height: 18px;
-  margin-top: 2px;
-  accent-color: var(--bgCard);
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+  background: var(--bgCard);
+  border: 2px solid var(--bgCard);
+  border-radius: 5px;
   cursor: pointer;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 120ms ease, transform 120ms ease;
+  /* Explicit contrast — the dark sage-deep sticky CTA card needs the
+   * checkbox to stand out. Browser defaults render nearly invisible on iOS. */
+  box-shadow: 0 0 0 1px rgba(31, 42, 36, 0.15) inset;
+}
+.consent-label input[type="checkbox"]:hover {
+  background: #FFFFFF;
+}
+.consent-label input[type="checkbox"]:checked {
+  background: var(--sageDeep);
+  border-color: var(--bgCard);
+}
+.consent-label input[type="checkbox"]:checked::after {
+  content: "✓";
+  color: var(--bgCard);
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1;
+}
+.consent-label input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--bgCard);
+  outline-offset: 2px;
 }
 .consent-text { flex: 1; }
 
